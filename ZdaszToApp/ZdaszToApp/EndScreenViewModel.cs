@@ -74,6 +74,31 @@ public partial class EndScreenViewModel : ViewModelBase
         };
     }
 
+    private Control? FindControlRecursive(Control parent, string targetName)
+    {
+        if (parent.Name == targetName)
+            return parent;
+            
+        if (parent is Panel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Control c)
+                {
+                    var found = FindControlRecursive(c, targetName);
+                    if (found != null) return found;
+                }
+            }
+        }
+        else if (parent is ContentControl cc && cc.Content is Control content)
+        {
+            var found = FindControlRecursive(content, targetName);
+            if (found != null) return found;
+        }
+        
+        return null;
+    }
+
     [RelayCommand]
     private void GoToMenu()
     {
@@ -84,6 +109,21 @@ public partial class EndScreenViewModel : ViewModelBase
             {
                 var endScreen = window.FindControl<UserControl>("EndScreen");
                 var mainDock = window.FindControl<DockPanel>("Main");
+                if (endScreen != null && mainDock != null)
+                {
+                    QuizCounter.Reset();
+                    endScreen.IsVisible = false;
+                    mainDock.IsVisible = true;
+                }
+            }
+        }
+        else if (App.Current?.ApplicationLifetime is ISingleViewApplicationLifetime mobile)
+        {
+            var root = mobile.MainView as Control;
+            if (root != null)
+            {
+                var endScreen = FindControlRecursive(root, "EndScreen");
+                var mainDock = FindControlRecursive(root, "Main") as DockPanel;
                 if (endScreen != null && mainDock != null)
                 {
                     QuizCounter.Reset();
@@ -128,6 +168,47 @@ public partial class EndScreenViewModel : ViewModelBase
                             break;
                         case "Inf04":
                             var inf04View = window.FindControl<Inf04View>("Inf04");
+                            if (inf04View != null)
+                            {
+                                inf04View.DataContext = new Inf04(3);
+                                inf04View.IsVisible = true;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        else if (App.Current?.ApplicationLifetime is ISingleViewApplicationLifetime mobile)
+        {
+            var root = mobile.MainView as Control;
+            if (root != null)
+            {
+                var endScreen = FindControlRecursive(root, "EndScreen");
+                if (endScreen != null)
+                {
+                    QuizCounter.Reset();
+                    endScreen.IsVisible = false;
+
+                    switch (_lastTestType)
+                    {
+                        case "Inf02":
+                            var testView = FindControlRecursive(root, "Test");
+                            if (testView != null)
+                            {
+                                testView.DataContext = new Inf02(1);
+                                testView.IsVisible = true;
+                            }
+                            break;
+                        case "Inf03":
+                            var inf03View = FindControlRecursive(root, "Inf03");
+                            if (inf03View != null)
+                            {
+                                inf03View.DataContext = new Inf03(2);
+                                inf03View.IsVisible = true;
+                            }
+                            break;
+                        case "Inf04":
+                            var inf04View = FindControlRecursive(root, "Inf04");
                             if (inf04View != null)
                             {
                                 inf04View.DataContext = new Inf04(3);

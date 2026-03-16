@@ -354,6 +354,50 @@ public partial class Inf03 : ViewModelBase
                 }
             }
         }
+        else if (App.Current?.ApplicationLifetime is ISingleViewApplicationLifetime mobile)
+        {
+            var root = mobile.MainView as Control;
+            if (root != null)
+            {
+                var testView = FindControlRecursive(root, "Inf03");
+                var endScreen = FindControlRecursive(root, "EndScreen");
+                if (testView != null && endScreen != null)
+                {
+                    if (endScreen.DataContext is EndScreenViewModel endVm)
+                    {
+                        endVm.RefreshData();
+                        endVm.SetLastTestType("Inf03");
+                    }
+                    testView.IsVisible = false;
+                    endScreen.IsVisible = true;
+                }
+            }
+        }
+    }
+
+    private Control? FindControlRecursive(Control parent, string targetName)
+    {
+        if (parent.Name == targetName)
+            return parent;
+            
+        if (parent is Panel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                if (child is Control c)
+                {
+                    var found = FindControlRecursive(c, targetName);
+                    if (found != null) return found;
+                }
+            }
+        }
+        else if (parent is ContentControl cc && cc.Content is Control content)
+        {
+            var found = FindControlRecursive(content, targetName);
+            if (found != null) return found;
+        }
+        
+        return null;
     }
 
     private async Task LoadNextQuestionAsync()
