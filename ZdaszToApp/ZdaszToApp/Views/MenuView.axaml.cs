@@ -117,4 +117,22 @@ public partial class MenuView : UserControl
             Debug.WriteLine("[MenuView] Przelaczono na Inf04View");
         }
     }
+
+    private void OnLogoutClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        Debug.WriteLine("[MenuView] OnLogoutClick");
+        
+        var mainDock = FindParentWithName(this, "Main");
+        var loginView = FindInRoot(this, "Login");
+        
+        if (mainDock != null && loginView != null)
+        {
+            mainDock.IsVisible = false;
+            loginView.IsVisible = true;
+            
+            AuthService.Instance.ClearCredentials();
+            
+            Debug.WriteLine("[MenuView] Wylogowano");
+        }
+    }
 }

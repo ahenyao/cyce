@@ -1,6 +1,9 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
 using ZdaszToApp.ViewModels;
+using ZdaszToApp.Services;
 using System.Diagnostics;
+using System;
 
 namespace ZdaszToApp.Views;
 
@@ -20,6 +23,18 @@ public partial class AppView : UserControl
         {
             Login.DataContext = vm.LoginViewModel;
             AddAccount.DataContext = vm.AddAccountViewModel;
+            
+            var authService = AuthService.Instance;
+            if (authService.HasSavedCredentials())
+            {
+                vm.LoginViewModel.Username = authService.SavedUsername;
+                vm.LoginViewModel.Password = authService.SavedPassword;
+                
+                DispatcherTimer.RunOnce(() =>
+                {
+                    vm.LoginViewModel.LoginCommand.Execute(null);
+                }, TimeSpan.FromMilliseconds(100));
+            }
             
             vm.LoginViewModel.OnCreateAccountClicked += () =>
             {

@@ -9,6 +9,7 @@ namespace ZdaszToApp.ViewModels;
 public partial class LoginViewModel : ViewModelBase
 {
     private readonly ApiService _apiService = ApiService.Instance;
+    private readonly AuthService _authService = AuthService.Instance;
 
     [ObservableProperty] private string? username;
 
@@ -21,6 +22,15 @@ public partial class LoginViewModel : ViewModelBase
     [ObservableProperty] private string? error_password;
     
     [ObservableProperty] private bool isLoggedIn;
+
+    public LoginViewModel()
+    {
+        if (_authService.HasSavedCredentials())
+        {
+            Username = _authService.SavedUsername;
+            Password = _authService.SavedPassword;
+        }
+    }
 
     [RelayCommand]
     private async Task Login()
@@ -64,6 +74,7 @@ public partial class LoginViewModel : ViewModelBase
             return;
         }
 
+        _authService.SaveCredentials(Username!, Password!);
         Message = "Logowanie udane!";
         IsLoggedIn = true;
     }

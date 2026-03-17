@@ -112,6 +112,18 @@
                                    FontSize="50"/>
                     </StackPanel>
                 </Button>
+
+                <Button HorizontalAlignment="Center" 
+                        Margin="0,30,0,20"
+                        Background="#FF4444"
+                        Click="OnLogoutClick"
+                        Tapped="OnLogoutClick"
+                        Padding="15,10">
+                    <TextBlock Text="Wyloguj się"
+                               Foreground="White"
+                               FontFamily="{StaticResource JerseyFont}"
+                               FontSize="25"/>
+                </Button>
             </StackPanel>
         </Border>
     </Grid>
