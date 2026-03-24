@@ -1,4 +1,4 @@
-name: Build iOS ARM64
+name: iOS ARM64 Build
 
 on:
   push:
@@ -9,46 +9,51 @@ jobs:
     runs-on: macos-14
 
     steps:
+      # Checkout repository
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      # Setup .NET 8
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.101
 
+      # Install iOS workload
       - name: Install iOS workload
         run: |
           dotnet workload install ios
           dotnet workload list
 
-      - name: Install certificate and provisioning
+      # Install certificate and provisioning profile
+      - name: Setup certificate and provisioning
         run: |
-          # Decode .p12 file
+          # Decode certificate
           echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
 
-          # Create a dedicated keychain
+          # Create and unlock dedicated keychain
           security create-keychain -p actions build.keychain
-
-          # Import certificate (empty password allowed)
           if [ -z "${{ secrets.IOS_CERT_PASSWORD }}" ]; then
             security import ios_cert.p12 -k build.keychain -T /usr/bin/codesign
           else
             security import ios_cert.p12 -k build.keychain -P "${{ secrets.IOS_CERT_PASSWORD }}" -T /usr/bin/codesign
           fi
-
-          # Make the new keychain default
           security list-keychains -s build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p actions build.keychain
 
-          # Decode and install provisioning profile
+          # Decode provisioning profile
           echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > provisioning.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
+          # Extract UUID from provisioning profile
+          uuid=$(grep -a -o 'UUID.*' provisioning.mobileprovision | head -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
+          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+
+      # Restore .NET projects
       - name: Restore .NET projects
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
+      # Publish iOS ARM64 app
       - name: Publish iOS ARM64
         run: |
           dotnet publish -c Release \
@@ -56,8 +61,9 @@ jobs:
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             /p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
-            /p:CodesignProvision=provisioning.mobileprovision
+            /p:CodesignProvision=~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
 
+      # Upload the .app as artifact
       - name: Upload .app artifact
         uses: actions/upload-artifact@v4
         with:
