@@ -1,28 +1,65 @@
-name: iOS Build
+name: Build iOS ARM64
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-ios:
+  build-ios-arm64:
     runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.101
 
-      - name: Install iOS workload (clean)
+      - name: Install iOS workload
         run: |
-          dotnet workload install ios --ignore-failed-sources
+          dotnet workload install ios
           dotnet workload list
 
-      - name: Restore
+      - name: Install certificate and provisioning
+        run: |
+          # Decode .p12 file
+          echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
+
+          # Create a dedicated keychain
+          security create-keychain -p actions build.keychain
+
+          # Import certificate (empty password allowed)
+          if [ -z "${{ secrets.IOS_CERT_PASSWORD }}" ]; then
+            security import ios_cert.p12 -k build.keychain -T /usr/bin/codesign
+          else
+            security import ios_cert.p12 -k build.keychain -P "${{ secrets.IOS_CERT_PASSWORD }}" -T /usr/bin/codesign
+          fi
+
+          # Make the new keychain default
+          security list-keychains -s build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p actions build.keychain
+
+          # Decode and install provisioning profile
+          echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > provisioning.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Restore .NET projects
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
-      - name: Publish iOS
-        run: dotnet publish -c Release -f net8.0-ios17.0 ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+      - name: Publish iOS ARM64
+        run: |
+          dotnet publish -c Release \
+            -f net8.0-ios17.0 \
+            -r ios-arm64 \
+            ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
+            /p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
+            /p:CodesignProvision=provisioning.mobileprovision
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-arm64-app
+          path: ZdaszToApp/ZdaszToApp.iOS/bin/Release/net8.0-ios17.0/ios-arm64/publish/*.app
