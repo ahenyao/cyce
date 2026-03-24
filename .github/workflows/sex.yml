@@ -30,7 +30,7 @@ jobs:
           # Decode certificate
           echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
 
-          # Create and unlock dedicated keychain
+          # Create a dedicated keychain
           security create-keychain -p actions build.keychain
           if [ -z "${{ secrets.IOS_CERT_PASSWORD }}" ]; then
             security import ios_cert.p12 -k build.keychain -T /usr/bin/codesign
@@ -44,10 +44,7 @@ jobs:
           # Decode provisioning profile
           echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > provisioning.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-
-          # Extract UUID from provisioning profile
-          uuid=$(grep -a -o 'UUID.*' provisioning.mobileprovision | head -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
-          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision
 
       # Restore .NET projects
       - name: Restore .NET projects
@@ -61,7 +58,7 @@ jobs:
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             /p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
-            /p:CodesignProvision=~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+            /p:CodesignProvision=~/Library/MobileDevice/Provisioning\ Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision
 
       # Upload the .app as artifact
       - name: Upload .app artifact
