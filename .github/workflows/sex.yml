@@ -24,8 +24,8 @@ jobs:
           dotnet workload install ios
           dotnet workload list
 
-      # Install certificate
-      - name: Setup certificate
+      # Setup certificate
+      - name: Install certificate
         run: |
           echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
           security create-keychain -p actions build.keychain
@@ -38,12 +38,11 @@ jobs:
           security default-keychain -s build.keychain
           security unlock-keychain -p actions build.keychain
 
-      # Install provisioning profile
-      - name: Setup provisioning profile
+      # Setup provisioning profile
+      - name: Install provisioning profile
         run: |
-          echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > provisioning.mobileprovision
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp provisioning.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
+          echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
 
       # Restore .NET projects
       - name: Restore .NET projects
