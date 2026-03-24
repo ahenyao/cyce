@@ -11,5 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test
-        run: ls
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install workloads
+        run: dotnet workload install ios
+
+      - name: Restore
+        run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+
+      - name: Publish iOS
+        run: dotnet publish -c Release -f net9.0-ios ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
