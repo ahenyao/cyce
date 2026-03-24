@@ -16,14 +16,11 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: blowjob
-        run: cd ZdaszToApp/ZdaszToApp.iOS
-
       - name: Install workloads
         run: dotnet workload install ios
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ZdaszToApp/ZdaszToApp.iOS
 
       - name: Publish iOS
         run: dotnet publish -c Release -f net9.0-ios
