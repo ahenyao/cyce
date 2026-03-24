@@ -9,6 +9,7 @@
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <AndroidPackageFormat>apk</AndroidPackageFormat>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+        <AndroidSdkDirectory>C:\Users\intele8400\ahh uwu\dih-sdk</AndroidSdkDirectory>
     </PropertyGroup>
 
     <ItemGroup>

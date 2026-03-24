@@ -11,7 +11,7 @@ public class ApiService
     private static ApiService? _instance;
     public static ApiService Instance => _instance ??= new ApiService();
 
-    private static readonly string BaseUrl = "http://172.16.0.2:8080/";//"";
+    private static readonly string BaseUrl = "http://152.70.47.63:15901/";//"";
     private readonly HttpClient _httpClient;
     private string? _token;
 
@@ -64,7 +64,7 @@ public class ApiService
             new KeyValuePair<string,string>("username", username),
             new KeyValuePair<string,string>("password", password)
         });
-
+        
         var response = await _httpClient.PostAsync(url, content);
         var body = await response.Content.ReadAsStringAsync();
 

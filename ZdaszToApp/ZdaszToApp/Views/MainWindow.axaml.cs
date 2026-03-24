@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using ZdaszToApp.ViewModels;
+using System;
 namespace ZdaszToApp;
 
 public partial class MainWindow : Window
@@ -21,14 +22,31 @@ public partial class MainWindow : Window
                 AddAccount.IsVisible = true;
             };
             
-            vm.LoginViewModel.PropertyChanged += (s, e) =>
+            vm.LoginViewModel.OnLoginSuccess += () =>
             {
-                if (e.PropertyName == nameof(LoginViewModel.IsLoggedIn) && vm.LoginViewModel.IsLoggedIn)
-                {
-                    Main.IsVisible = true;
-                    Login.IsVisible = false;
-                    AddAccount.IsVisible = false;
-                }
+                Main.IsVisible = true;
+                Login.IsVisible = false;
+                AddAccount.IsVisible = false;
+            };
+            
+            vm.AddAccountViewModel.OnLoginSuccess += () =>
+            {
+                Main.IsVisible = true;
+                Login.IsVisible = false;
+                AddAccount.IsVisible = false;
+            };
+            
+            vm.AddAccountViewModel.OnGoBackToLogin += () =>
+            {
+                AddAccount.IsVisible = false;
+                Login.IsVisible = true;
+            };
+            
+            vm.OnAutoLoginSuccess += () =>
+            {
+                Main.IsVisible = true;
+                Login.IsVisible = false;
+                AddAccount.IsVisible = false;
             };
         }
     }

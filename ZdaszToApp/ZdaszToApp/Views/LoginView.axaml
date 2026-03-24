@@ -13,8 +13,28 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </UserControl.Resources>
-         
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <Grid>
+            <Grid IsVisible="{Binding IsLoading}">
+                <Border Background="#CC000000"/>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+                    <Border Background="#878787" CornerRadius="50" Width="80" Height="80">
+                        <Ellipse x:Name="Spinner" Width="60" Height="60" Stroke="#D3D3D3" StrokeThickness="6" 
+                                 StrokeDashArray="1,4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform Angle="0" x:Name="SpinnerRotate"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Border>
+                    <TextBlock Text="Logowanie..." 
+                               Foreground="White" 
+                               FontFamily="{StaticResource JerseyFont}"
+                               FontSize="30" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid IsVisible="{Binding !IsLoading}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>     <!--Nagłówek - nazwa aplikacji    -->

@@ -19,16 +19,46 @@
         <vm:AddAccountViewModel />
     </Design.DataContext>
     
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid>
+        <Grid IsVisible="{Binding IsLoading}">
+            <Border Background="#CC000000"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+                <Border Background="#878787" CornerRadius="50" Width="80" Height="80">
+                    <Ellipse x:Name="Spinner" Width="60" Height="60" Stroke="#D3D3D3" StrokeThickness="6" 
+                             StrokeDashArray="1,4" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.RenderTransform>
+                            <RotateTransform Angle="0" x:Name="SpinnerRotate"/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Border>
+                <TextBlock Text="Logowanie..." 
+                           Foreground="White" 
+                           FontFamily="{StaticResource JerseyFont}"
+                           FontSize="30" 
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid IsVisible="{Binding !IsLoading}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Cofnij -->
             <RowDefinition Height="*"/>     <!--Nagłówek - nazwa aplikacji    -->
             <RowDefinition Height="*"/>     <!-- Logo   -->
-            <RowDefinition Height="Auto"/>  <!-- Hasło  -->
-            <RowDefinition Height="Auto"/>  <!-- Login  -->
+            <RowDefinition Height="Auto"/>  <!-- Formularz -->
             <RowDefinition Height="Auto"/>  <!-- Przycisk "załóż konto" -->
         </Grid.RowDefinitions>
+        
+        <Button Grid.Row="0"
+                Content="← Wróć"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10,10,0,0"
+                FontSize="20"
+                Background="Transparent"
+                Foreground="#D3D3D3"
+                Command="{Binding GoBackCommand}"/>
     
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
+    <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
         <Border Background="#878787"
                 CornerRadius="10"
                 Padding="10">
@@ -40,12 +70,12 @@
         </Border>
     </StackPanel>
     
-   <Image Grid.Row="1"
-          Source="../Assets/avalonia-logo.ico"
-          Stretch="Uniform"/>
-        
+   <Image Grid.Row="2"
+           Source="../Assets/avalonia-logo.ico"
+           Stretch="Uniform"/>
+         
     
-    <Border Grid.Row="2" Background="#5E5E5E" CornerRadius="20" Margin="50,20,50,0">
+    <Border Grid.Row="3" Background="#5E5E5E" CornerRadius="20" Margin="50,20,50,0">
     <StackPanel>
         
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="5" Margin="0,20,0,20">
@@ -64,6 +94,7 @@
                     </Border>
                     
                     <TextBox Width="200" 
+                             Text="{Binding Email, Mode=TwoWay}"
                              Watermark="Wpisz adres e-mail"/>
                     </StackPanel>
             </Border>
@@ -84,6 +115,7 @@
                         
                     </Border>
                     <TextBox Width="200" 
+                             Text="{Binding Username, Mode=TwoWay}"
                              Watermark="Wpisz login"/>
                     </StackPanel>
                     </Border>
@@ -104,7 +136,7 @@
                                Margin="10,0,10,0"/>
                         
                     </Border>
-                    <TextBox Watermark="Wpisz hasło" 
+                    <TextBox Text="{Binding Password, Mode=TwoWay}"
                              PasswordChar="*" 
                              Width="200" />
                 </StackPanel>
@@ -120,16 +152,17 @@
             Margin="50,20,50,40">
             
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="5">
-            <Button Name="LogButton"
-                Content="Załóż konto" 
-                FontSize="50"
-                FontWeight="Bold"
-                HorizontalAlignment="Center"
-                Margin="0,20,0,20"
-                CornerRadius="10"
-                Foreground="#D3D3D3"
-                Background="Red"
-                FontFamily="{StaticResource JerseyFont}"/>
+                <Button Name="LogButton"
+                 Content="Załóż konto" 
+                 FontSize="50"
+                 FontWeight="Bold"
+                 HorizontalAlignment="Center"
+                 Margin="0,20,0,20"
+                 CornerRadius="10"
+                 Foreground="#D3D3D3"
+                 Background="Red"
+                 FontFamily="{StaticResource JerseyFont}"
+                 Command="{Binding SignupCommand}"/>
         </StackPanel>
     </Border>
    

@@ -43,15 +43,27 @@ public partial class AppView : UserControl
                 Debug.WriteLine("[AppView] Przelaczono na AddAccountView");
             };
             
-            vm.LoginViewModel.PropertyChanged += (s, args) =>
+            vm.LoginViewModel.OnLoginSuccess += () =>
             {
-                if (args.PropertyName == nameof(LoginViewModel.IsLoggedIn) && vm.LoginViewModel.IsLoggedIn)
-                {
-                    Main.IsVisible = true;
-                    Login.IsVisible = false;
-                    AddAccount.IsVisible = false;
-                    Debug.WriteLine("[AppView] Zaladowano MenuView (Main)");
-                }
+                Main.IsVisible = true;
+                Login.IsVisible = false;
+                AddAccount.IsVisible = false;
+                Debug.WriteLine("[AppView] Zaladowano MenuView (Main)");
+            };
+            
+            vm.AddAccountViewModel.OnLoginSuccess += () =>
+            {
+                Main.IsVisible = true;
+                Login.IsVisible = false;
+                AddAccount.IsVisible = false;
+                Debug.WriteLine("[AppView] Zaladowano MenuView po rejestracji (Main)");
+            };
+            
+            vm.AddAccountViewModel.OnGoBackToLogin += () =>
+            {
+                AddAccount.IsVisible = false;
+                Login.IsVisible = true;
+                Debug.WriteLine("[AppView] Przelaczono na LoginView");
             };
         }
     }

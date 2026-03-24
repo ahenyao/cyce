@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
@@ -29,6 +30,7 @@ public class AuthService
 
     public void SaveCredentials(string username, string password)
     {
+        Console.WriteLine($"[AuthService] SaveCredentials: username={username}, password={password}");
         _savedUsername = username;
         _savedPassword = password;
         _isAuthenticated = true;
@@ -48,6 +50,7 @@ public class AuthService
     public bool HasSavedCredentials()
     {
         LoadFromFile();
+        Console.WriteLine($"[AuthService] HasSavedCredentials: _isAuthenticated={_isAuthenticated}, _savedUsername={_savedUsername}, _savedPassword={(_savedPassword != null ? "***" : "null")}");
         return _isAuthenticated && !string.IsNullOrEmpty(_savedUsername) && !string.IsNullOrEmpty(_savedPassword);
     }
 
@@ -70,11 +73,15 @@ public class AuthService
                 IsAuthenticated = _isAuthenticated
             };
             var json = JsonSerializer.Serialize(data);
-            File.WriteAllText(GetFilePath(), json);
+            var path = GetFilePath();
+            Console.WriteLine($"[AuthService] Saving to: {path}");
+            Console.WriteLine($"[AuthService] Data: {json}");
+            File.WriteAllText(path, json);
+            Console.WriteLine("[AuthService] File saved successfully");
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore errors
+            Console.WriteLine($"[AuthService] SaveToFile error: {ex.Message}");
         }
     }
 
@@ -83,21 +90,28 @@ public class AuthService
         try
         {
             var path = GetFilePath();
+            Console.WriteLine($"[AuthService] Loading from: {path}");
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
+                Console.WriteLine($"[AuthService] Loaded json: {json}");
                 var data = JsonSerializer.Deserialize<AuthData>(json);
                 if (data != null)
                 {
                     _savedUsername = data.Username;
                     _savedPassword = data.Password;
                     _isAuthenticated = data.IsAuthenticated;
+                    Console.WriteLine($"[AuthService] Loaded - Username: {_savedUsername}, IsAuthenticated: {_isAuthenticated}");
                 }
             }
+            else
+            {
+                Console.WriteLine("[AuthService] File does not exist");
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore errors
+            Console.WriteLine($"[AuthService] LoadFromFile error: {ex.Message}");
         }
     }
 

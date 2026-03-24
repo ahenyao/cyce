@@ -23,7 +23,11 @@ public partial class MainWindowViewModel : ObservableObject
         AddAccountViewModel = new AddAccountViewModel();
         
         LoginViewModel.PropertyChanged += LoginViewModel_PropertyChanged;
+        
+        _ = AutoLogin();
     }
+
+    public event Action? OnAutoLoginSuccess;
 
     private async Task AutoLogin()
     {
@@ -38,13 +42,16 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 IsLoggedIn = true;
                 IsLoginVisible = false;
+                IsMainVisible = true;
+                OnAutoLoginSuccess?.Invoke();
+                return;
             }
             else
             {
                 authService.ClearCredentials();
-                IsLoginVisible = true;
             }
         }
+        IsLoginVisible = true;
     }
 
     [RelayCommand]

@@ -5,6 +5,7 @@ using Avalonia.VisualTree;
 using ZdaszToApp.ViewModels;
 using ZdaszToApp.Services;
 using System.Diagnostics;
+using System;
 
 namespace ZdaszToApp.Views;
 
@@ -131,6 +132,11 @@ public partial class MenuView : UserControl
             loginView.IsVisible = true;
             
             AuthService.Instance.ClearCredentials();
+            
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.LoginViewModel.Reset();
+            }
             
             Debug.WriteLine("[MenuView] Wylogowano");
         }

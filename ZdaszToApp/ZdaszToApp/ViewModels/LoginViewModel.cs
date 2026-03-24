@@ -23,8 +23,22 @@ public partial class LoginViewModel : ViewModelBase
     
     [ObservableProperty] private bool isLoggedIn;
 
+    [ObservableProperty] private bool isLoading;
+
     public LoginViewModel()
     {
+        Reset();
+    }
+
+    public void Reset()
+    {
+        Username = null;
+        Password = null;
+        Message = null;
+        Error_login = null;
+        Error_password = null;
+        IsLoggedIn = false;
+        
         if (_authService.HasSavedCredentials())
         {
             Username = _authService.SavedUsername;
@@ -38,6 +52,7 @@ public partial class LoginViewModel : ViewModelBase
         Message = null;
         Error_login = null;
         Error_password = null;
+        IsLoading = true;
 
         if (string.IsNullOrWhiteSpace(Username))
         {
@@ -56,6 +71,7 @@ public partial class LoginViewModel : ViewModelBase
         if (result == null || result.StartsWith("Error:"))
         {
             Message = result ?? "Błąd połączenia";
+            IsLoading = false;
             return;
         }
 
@@ -64,6 +80,7 @@ public partial class LoginViewModel : ViewModelBase
             Error_password = "Błędne hasło";
             Message = "Błędne dane logowania";
             Password = string.Empty;
+            IsLoading = false;
             return;
         }
 
@@ -71,12 +88,16 @@ public partial class LoginViewModel : ViewModelBase
         {
             Error_login = "Użytkownik nie istnieje";
             Message = "Błędne dane logowania";
+            IsLoading = false;
             return;
         }
 
         _authService.SaveCredentials(Username!, Password!);
         Message = "Logowanie udane!";
         IsLoggedIn = true;
+        IsLoading = false;
+        Console.WriteLine("[LoginViewModel] Login success, calling OnLoginSuccess");
+        OnLoginSuccess?.Invoke();
     }
 
     [RelayCommand]
@@ -86,4 +107,5 @@ public partial class LoginViewModel : ViewModelBase
     }
 
     public event Action? OnCreateAccountClicked;
+    public event Action? OnLoginSuccess;
 }
