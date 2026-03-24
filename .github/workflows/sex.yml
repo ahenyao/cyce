@@ -24,13 +24,10 @@ jobs:
           dotnet workload install ios
           dotnet workload list
 
-      # Install certificate and provisioning profile
-      - name: Setup certificate and provisioning
+      # Install certificate
+      - name: Setup certificate
         run: |
-          # Decode certificate
           echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
-
-          # Create a dedicated keychain
           security create-keychain -p actions build.keychain
           if [ -z "${{ secrets.IOS_CERT_PASSWORD }}" ]; then
             security import ios_cert.p12 -k build.keychain -T /usr/bin/codesign
@@ -41,10 +38,12 @@ jobs:
           security default-keychain -s build.keychain
           security unlock-keychain -p actions build.keychain
 
-          # Decode provisioning profile
+      # Install provisioning profile
+      - name: Setup provisioning profile
+        run: |
           echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > provisioning.mobileprovision
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp provisioning.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp provisioning.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
 
       # Restore .NET projects
       - name: Restore .NET projects
@@ -58,7 +57,7 @@ jobs:
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             /p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
-            /p:CodesignProvision=~/Library/MobileDevice/Provisioning\ Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision
+            /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
 
       # Upload the .app as artifact
       - name: Upload .app artifact
