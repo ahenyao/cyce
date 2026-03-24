@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v4
@@ -14,13 +14,15 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 8.0.101
 
-      - name: Install workloads
-        run: dotnet workload install ios
+      - name: Install iOS workload (clean)
+        run: |
+          dotnet workload install ios --ignore-failed-sources
+          dotnet workload list
 
       - name: Restore
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
       - name: Publish iOS
-        run: dotnet publish -c Release -f net9.0-ios ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+        run: dotnet publish -c Release -f net8.0-ios17.0 ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
