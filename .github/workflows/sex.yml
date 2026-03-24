@@ -1,0 +1,26 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install workloads
+        run: dotnet workload install ios
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Publish iOS
+        run: dotnet publish -c Release -f net9.0-ios
