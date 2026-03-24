@@ -22,7 +22,7 @@
                         <Ellipse x:Name="Spinner" Width="60" Height="60" Stroke="#D3D3D3" StrokeThickness="6" 
                                  StrokeDashArray="1,4" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Ellipse.RenderTransform>
-                                <RotateTransform Angle="0" x:Name="SpinnerRotate"/>
+                                <RotateTransform Angle="0"/>
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Border>
@@ -165,4 +165,5 @@
            </StackPanel>
                 </Border>
         </Grid>
-            </UserControl>
+    </Grid>
+</UserControl>
