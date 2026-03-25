@@ -7,7 +7,6 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-
     env:
       IOS_CERT_P12: ${{ secrets.IOS_CERT_P12 }}
       IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
@@ -26,37 +25,38 @@ jobs:
       - name: Install iOS workload
         run: dotnet workload install ios
 
-      - name: Decode and import certificate
+      - name: Decode certificate
         run: |
-          echo "Decoding .p12 certificate..."
-          printf "%s" "$IOS_CERT_P12" | base64 --decode > temp.p12
+          echo "$IOS_CERT_P12" | base64 --decode > cert.p12
 
-          echo "Creating temporary keychain..."
+      - name: Create temporary keychain and import certificate
+        run: |
           security create-keychain -p "" build.keychain
-          security import temp.p12 -k build.keychain -P "$IOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security import cert.p12 -k build.keychain -P "$IOS_CERT_PASSWORD" -T /usr/bin/codesign
           security list-keychains -s build.keychain
+          security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
 
       - name: Decode provisioning profile
         run: |
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          printf "%s" "$IOS_PROVISION" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROVISION_UUID.mobileprovision"
-          ls -l "$HOME/Library/MobileDevice/Provisioning Profiles/"
+          echo "$IOS_PROVISION" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROVISION_UUID.mobileprovision"
 
-      - name: Restore
-        run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+      - name: Restore iOS project
+        run: |
+          dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj -f net8.0-ios17.0
 
-      - name: Build iOS for simulator
+      - name: Build iOS simulator
         run: |
           dotnet build -c Release \
-            -f net8.0 \
+            -f net8.0-ios17.0 \
             -r iossimulator-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
-      - name: Publish iOS for device
+      - name: Publish iOS device
         run: |
           dotnet publish -c Release \
-            -f net8.0 \
+            -f net8.0-ios17.0 \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             /p:CodesignKey="$IOS_CODESIGN_KEY" \
