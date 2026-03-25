@@ -49,14 +49,14 @@ jobs:
       - name: Build iOS for simulator
         run: |
           dotnet build -c Release \
-            -f net8.0-ios17.0 \
+            -f net8.0 \
             -r iossimulator-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
       - name: Publish iOS for device
         run: |
           dotnet publish -c Release \
-            -f net8.0-ios17.0 \
+            -f net8.0 \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             /p:CodesignKey="$IOS_CODESIGN_KEY" \
