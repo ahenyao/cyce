@@ -46,7 +46,7 @@ jobs:
 
       - name: Build iOS simulator
         run: |
-          dotnet build -c Release \
+          dotnet build -c Debug \
             -f net8.0-ios17.0 \
             -r iossimulator-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
@@ -55,7 +55,7 @@ jobs:
 
       - name: Publish iOS device
         run: |
-          dotnet publish -c Release \
+          dotnet publish -c Debug \
             -f net8.0-ios17.0 \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
