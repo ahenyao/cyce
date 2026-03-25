@@ -25,7 +25,7 @@ jobs:
       - name: Build Debug APK (ARM64)
         run: |
           dotnet publish \
-            -c Debug \
+            -c Release \
             -f net9.0-android \
             -r android-arm64 \
             ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj \
