@@ -26,7 +26,7 @@ jobs:
         run: |
           dotnet publish \
             -c Debug \
-            -f net8.0-android \
+            -f net9.0-android \
             -r android-arm64 \
             ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj \
             /p:AndroidPackageFormat=apk \
