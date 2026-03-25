@@ -37,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          path: ZdaszToApp/ZdaszToApp.Android/bin/Debug/net9.0-android/android-arm64/publish/*.apk
+          path: ZdaszToApp/ZdaszToApp.Android/bin/Release/net9.0-android/android-arm64/publish/*.apk
