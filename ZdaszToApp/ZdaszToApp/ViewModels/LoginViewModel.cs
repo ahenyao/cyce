@@ -49,10 +49,12 @@ public partial class LoginViewModel : ViewModelBase
     [RelayCommand]
     private async Task Login()
     {
+        Console.WriteLine("[LoginViewModel] Login command started");
         Message = null;
         Error_login = null;
         Error_password = null;
         IsLoading = true;
+        Console.WriteLine("[LoginViewModel] IsLoading set to true");
 
         if (string.IsNullOrWhiteSpace(Username))
         {
@@ -70,7 +72,7 @@ public partial class LoginViewModel : ViewModelBase
 
         if (result == null || result.StartsWith("Error:"))
         {
-            Message = result ?? "Błąd połączenia";
+            Message = "Brak połączenia z internetem";
             IsLoading = false;
             return;
         }

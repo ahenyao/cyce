@@ -22,12 +22,16 @@ public partial class LoginView : UserControl
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
+        Console.WriteLine("[LoginView] OnLoaded called");
         if (DataContext is LoginViewModel vm)
         {
+            Console.WriteLine("[LoginView] DataContext is LoginViewModel");
             vm.PropertyChanged += (s, args) =>
             {
+                Console.WriteLine("[LoginView] PropertyChanged: " + args.PropertyName);
                 if (args.PropertyName == nameof(LoginViewModel.IsLoading))
                 {
+                    Console.WriteLine("[LoginView] IsLoading changed to: " + vm.IsLoading);
                     if (vm.IsLoading)
                         StartSpinner();
                     else
@@ -39,6 +43,7 @@ public partial class LoginView : UserControl
 
     private void StartSpinner()
     {
+        Console.WriteLine("[LoginView] StartSpinner called");
         _rotationAngle = 0;
         _spinnerTimer = new DispatcherTimer
         {
@@ -46,6 +51,7 @@ public partial class LoginView : UserControl
         };
         _spinnerTimer.Tick += (s, e) =>
         {
+            Console.WriteLine("[LoginView] Spinner tick, Spinner null:" + (Spinner == null) + ", RenderTransform null:" + (Spinner?.RenderTransform == null));
             _rotationAngle = (_rotationAngle + 10) % 360;
             if (Spinner?.RenderTransform is RotateTransform rt)
             {
@@ -53,10 +59,12 @@ public partial class LoginView : UserControl
             }
         };
         _spinnerTimer.Start();
+        Console.WriteLine("[LoginView] Spinner started");
     }
 
     private void StopSpinner()
     {
+        Console.WriteLine("[LoginView] StopSpinner called");
         _spinnerTimer?.Stop();
         _spinnerTimer = null;
     }

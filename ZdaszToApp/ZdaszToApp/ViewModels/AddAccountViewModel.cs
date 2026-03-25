@@ -63,14 +63,14 @@ public partial class AddAccountViewModel : ViewModelBase
 
         var result = await _apiService.SignupAsync(Email, Username, Password);
 
-        if (result == null)
+        if (result == null || result.StartsWith("Error:"))
         {
-            Message = "Błąd połączenia";
+            Message = "Brak połączenia z internetem";
             IsLoading = false;
             return;
         }
 
-            if (result == "User created")
+        if (result == "User created")
             {
                 Message = "Konto utworzone!";
                 AccountCreated = true;
@@ -84,8 +84,11 @@ public partial class AddAccountViewModel : ViewModelBase
                     Console.WriteLine($"[AddAccountViewModel] Calling SaveCredentials - Username: {Username}, Password: {(Password != null ? "***" : "null")}");
                     _authService.SaveCredentials(Username!, Password!);
                     IsLoggedIn = true;
-                    IsLoading = false;
                     OnLoginSuccess?.Invoke();
+                }
+                else if (loginResult?.StartsWith("Error:") == true)
+                {
+                    Message = "Konto utworzone, ale nie można się zalogować. Sprawdź połączenie.";
                 }
                 IsLoading = false;
                 return;
