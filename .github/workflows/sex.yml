@@ -51,7 +51,7 @@ jobs:
             -r iossimulator-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             --no-restore \
-            /p:PublishTrimmed=false
+            /p:MtouchLink=None
 
       - name: Publish iOS device
         run: |
@@ -62,4 +62,4 @@ jobs:
             --no-restore \
             /p:CodesignKey="$IOS_CODESIGN_KEY" \
             /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROVISION_UUID.mobileprovision" \
-            /p:PublishTrimmed=false
+            /p:MtouchLink=None
