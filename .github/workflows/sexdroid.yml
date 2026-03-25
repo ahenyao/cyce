@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 8.0.x
 
       - name: Install Android workload
         run: dotnet workload install android
@@ -26,7 +26,7 @@ jobs:
         run: |
           dotnet publish \
             -c Debug \
-            -f net9.0-android \
+            -f net8.0-android \
             -r android-arm64 \
             ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj \
             /p:AndroidPackageFormat=apk \
