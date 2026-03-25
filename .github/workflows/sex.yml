@@ -44,7 +44,7 @@ jobs:
 
       - name: Restore iOS project
         run: |
-          dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj -f net8.0-ios17.0
+          dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
       - name: Build iOS simulator
         run: |
