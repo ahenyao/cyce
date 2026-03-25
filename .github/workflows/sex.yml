@@ -46,7 +46,14 @@ jobs:
       - name: Restore
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
-      - name: Publish iOS for device (arm64)
+      - name: Build iOS for simulator
+        run: |
+          dotnet build -c Release \
+            -f net8.0-ios17.0 \
+            -r iossimulator-arm64 \
+            ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+
+      - name: Publish iOS for device
         run: |
           dotnet publish -c Release \
             -f net8.0-ios17.0 \
