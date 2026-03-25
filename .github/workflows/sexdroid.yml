@@ -1,0 +1,41 @@
+name: Android Debug Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Restore
+        run: dotnet restore ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj
+
+      - name: Build Debug APK (ARM64)
+        run: |
+          dotnet publish \
+            -c Debug \
+            -f net8.0-android \
+            -r android-arm64 \
+            ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj \
+            /p:AndroidPackageFormat=apk \
+            /p:RunAOTCompilation=false \
+            /p:PublishTrimmed=false
+
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: ZdaszToApp/ZdaszToApp.Android/bin/
