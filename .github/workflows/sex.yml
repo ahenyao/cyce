@@ -7,41 +7,48 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
+    env:
+      IOS_CERT_P12: ${{ secrets.IOS_CERT_P12 }}
+      IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+      IOS_CODESIGN_KEY: ${{ secrets.IOS_CODESIGN_KEY }}
+      IOS_PROVISION: ${{ secrets.IOS_PROVISION }}
+      IOS_PROVISION_UUID: ${{ secrets.IOS_PROVISION_UUID }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Install iOS workload
+      - name: Install iOS workloads
         run: dotnet workload install ios
 
-      - name: Decode provisioning profile
+      - name: Prepare signing
         run: |
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
-          chmod 644 "$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
-
-      - name: Import certificate
-        run: |
-          echo "${{ secrets.IOS_CODESIGN_KEY }}" | base64 --decode > cert.p12
+          echo "Creating temporary keychain..."
           security create-keychain -p "" build.keychain
-          security import cert.p12 -k build.keychain -P "${{ secrets.IOS_CERT_PASSWORD }}" -T /usr/bin/codesign
+          security import <(echo "$IOS_CERT_P12" | base64 --decode) \
+            -k build.keychain \
+            -P "$IOS_CERT_PASSWORD" \
+            -T /usr/bin/codesign
           security list-keychains -s build.keychain
           security unlock-keychain -p "" build.keychain
-          security set-keychain-settings build.keychain
+
+          echo "Decoding provisioning profile..."
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$IOS_PROVISION" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROVISION_UUID.mobileprovision"
 
       - name: Restore project
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
 
-      - name: Publish iOS ARM64
+      - name: Publish iOS
         run: |
           dotnet publish -c Release \
             -f net8.0-ios17.0 \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
-            /p:CodesignKey="${{ secrets.IOS_CODESIGN_NAME }}" \
-            /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/${{ secrets.IOS_PROVISIONING_UUID }}.mobileprovision"
+            /p:CodesignKey="$IOS_CODESIGN_KEY" \
+            /p:CodesignProvision="$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROVISION_UUID.mobileprovision"
