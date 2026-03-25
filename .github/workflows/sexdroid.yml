@@ -16,13 +16,8 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Verify SDK
-        run: dotnet --info
-
       - name: Install Android workload
-        run: |
-          dotnet workload install android
-          dotnet workload restore
+        run: dotnet workload install android
 
       - name: Restore
         run: dotnet restore ZdaszToApp/ZdaszToApp.Android/ZdaszToApp.Android.csproj
