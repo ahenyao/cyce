@@ -20,7 +20,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Install iOS workload
         run: dotnet workload install ios
@@ -47,7 +47,7 @@ jobs:
       - name: Build iOS simulator
         run: |
           dotnet build -c Debug \
-            -f net7.0-ios \
+            -f net8.0-ios \
             -r iossimulator-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             --no-restore \
@@ -56,10 +56,10 @@ jobs:
       - name: Publish iOS device
         run: |
           dotnet publish -c Debug \
-            -f net7.0-ios \
+            -f net8.0-ios \
             -r ios-arm64 \
             ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
             --no-restore \
-            /p:CodesignKey="Apple Development" \
+            /p:CodesignKey="$IOS_CODESIGN_KEY" \
             /p:CodesignProvision="$IOS_PROVISION_UUID" \
             /p:MtouchLink=None
