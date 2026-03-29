@@ -56,3 +56,9 @@ jobs:
             /p:CodesignProvision="" \
             /p:CodesignEntitlements="" \
             /p:MtouchLink=None
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-arm64-release
+          path: ZdaszToApp/ZdaszToApp.iOS/bin/Debug/net9.0-ios/ipa/ZdaszToApp.iOS.ipa
