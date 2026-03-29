@@ -43,3 +43,16 @@ jobs:
 
       - name: Restore iOS project
         run: dotnet restore ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj
+
+      - name: Publish iOS device
+        run: |
+          dotnet publish -c Debug \
+            -f net8.0-ios \
+            -r ios-arm64 \
+            ZdaszToApp/ZdaszToApp.iOS/ZdaszToApp.iOS.csproj \
+            --no-restore \
+            /p:EnableCodeSigning=false \
+            /p:CodesignKey="" \
+            /p:CodesignProvision="" \
+            /p:CodesignEntitlements="" \
+            /p:MtouchLink=None
